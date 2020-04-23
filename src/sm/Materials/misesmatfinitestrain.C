@@ -532,6 +532,7 @@ MisesMatFiniteStrain :: giveIPValue(FloatArray &answer, GaussPoint *gp, Internal
     } else {
         return StructuralMaterial :: giveIPValue(answer, gp, type, tStep);
 	}*/
+    return 0;
 }
 
 

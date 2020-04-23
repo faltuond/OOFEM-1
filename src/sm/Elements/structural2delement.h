@@ -48,7 +48,7 @@ namespace oofem {
  *
  * @author Jim Brouzoulis
  */
-class Structural2DElement : public NLStructuralElement, FbarElementExtensionInterface
+class Structural2DElement : public NLStructuralElement, public FbarElementExtensionInterface
 {
 
 protected:

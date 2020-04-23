@@ -569,6 +569,7 @@ MisesMatLogStrain :: giveIPValue(FloatArray &answer, GaussPoint *gp, InternalSta
     } else {
         return StructuralMaterial :: giveIPValue(answer, gp, type, tStep);
 	}*/
+    return 0;
 }
 
 

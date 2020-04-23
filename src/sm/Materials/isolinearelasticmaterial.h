@@ -68,7 +68,7 @@ class GaussPoint;
  * - Returning a material property (method 'give'). Only for non-standard elements.
  * - Returning real stress state vector(tensor) at gauss point for 3d - case.
  */
- class IsotropicLinearElasticMaterial : public LinearElasticMaterial,MixedPressureMaterialExtensionInterface 
+ class IsotropicLinearElasticMaterial : public LinearElasticMaterial, public MixedPressureMaterialExtensionInterface 
 {
 protected:
     /// Young's modulus.
