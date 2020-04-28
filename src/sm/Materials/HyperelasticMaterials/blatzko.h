@@ -37,6 +37,7 @@
 
 #include "../sm/Materials/structuralmaterial.h"
 #include "../sm/Materials/structuralms.h"
+#include "classfactory.h"
 
  ///@name Input fields for MooneyRivlinMaterial
  //@{

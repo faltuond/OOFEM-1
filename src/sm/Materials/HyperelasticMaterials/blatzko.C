@@ -1,6 +1,8 @@
 #include "blatzko.h"
 
 namespace oofem {
+    REGISTER_Material(BlatzKoMaterial);
+
 
     IRResultType BlatzKoMaterial::initializeFrom(InputRecord* ir) {
         IRResultType result;           // Required by IR_GIVE_FIELD macro
