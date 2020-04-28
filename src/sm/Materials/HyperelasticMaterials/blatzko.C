@@ -15,25 +15,27 @@ namespace oofem {
 
     void BlatzKoMaterial::give3dMaterialStiffnessMatrix_dPdF(FloatMatrix &answer, MatResponseMode mode, GaussPoint *gp, TimeStep *tStep) {
 
-        //retrieve deformation from status
+        //retrieve deformation from status and convert to matrix form
         StructuralMaterialStatus *status = static_cast<StructuralMaterialStatus *>(this->giveStatus(gp));
         FloatArray vF = status->giveTempFVector();
+        FloatMatrix F;
+        F.beMatrixForm(vF);
 
         //invariants of deformation (invariants of C)
-        double i2 = compute_I2_C_from_F(vF);
-        double i3 = compute_I3_C_from_F(vF);
+        double i2 = compute_I2_C_from_F(F);
+        double i3 = compute_I3_C_from_F(F);
 
         //their first derivatives
         FloatArray di2dF, di3dF;
-        compute_dI2_C_dF(di2dF, vF);
-        compute_dI3_C_dF(di3dF, vF);
+        compute_dI2_C_dF(di2dF, F);
+        compute_dI3_C_dF(di3dF, F);
 
         //their second derivatives
         FloatMatrix d2i2dF2, d2i3dF2;
-        compute_d2I2_C_dF2(d2i2dF2, vF);
-        compute_d2I3_C_dF2(d2i3dF2, vF);
+        compute_d2I2_C_dF2(d2i2dF2, F);
+        compute_d2I3_C_dF2(d2i3dF2, F);
 
-        //computation of stiffness
+        //assembling stiffness
         //A = coeff1 * d2i2dF2
         //  + coeff2 * (di2dF x di3dF)
         //  + coeff3 * (di3dF x di3dF)
@@ -63,15 +65,22 @@ namespace oofem {
     }
 
     void BlatzKoMaterial::giveFirstPKStressVector_3d(FloatArray &answer, GaussPoint *gp, const FloatArray &vF, TimeStep *tStep) {
+        
+        //retrieve status
+        StructuralMaterialStatus *status = static_cast<StructuralMaterialStatus *>(this->giveStatus(gp));
+
+        //convert F to matrix form
+        FloatMatrix F;
+        F.beMatrixForm(vF);
 
         //invariants of deformation (invariants of C)
-        double i2 = compute_I2_C_from_F(vF);
-        double i3 = compute_I3_C_from_F(vF);
+        double i2 = compute_I2_C_from_F(F);
+        double i3 = compute_I3_C_from_F(F);
 
         //their first derivatives
         FloatArray di2dF, di3dF;
-        compute_dI2_C_dF(di2dF, vF);
-        compute_dI3_C_dF(di3dF, vF);
+        compute_dI2_C_dF(di2dF, F);
+        compute_dI3_C_dF(di3dF, F);
 
         //assembling the stress vector
         // P = mu/(2I_3) * (dI2dF + (sqrt(I_3) - (I_2/I_3)) * dI3dF)
@@ -85,6 +94,10 @@ namespace oofem {
 
         double mainCoeff = mu / (2 * i3);
         answer.times(mainCoeff);
+
+        //store into status
+        status->letTempFVectorBe(vF);
+        status->letTempPVectorBe(answer);
     }
 
     MaterialStatus* BlatzKoMaterial::CreateStatus(GaussPoint* gp) const {

@@ -2435,7 +2435,27 @@ StructuralMaterial :: compute_dI2_C_dF(FloatArray &answer, const FloatMatrix &F)
 
 void
 StructuralMaterial :: compute_dI3_C_dF(FloatArray &answer, const FloatMatrix &F)
-{}
+{
+#ifdef DEBUG
+    if ( F.giveNumberOfRows() != 3 || F.giveNumberOfColumns() != 3 ) {
+        OOFEM_ERROR("Inconsistent size of deformation gradient");
+    }
+#endif
+
+    // dI3/dF = 2*det F x cof F
+
+    //compute determinant
+    double det = F.giveDeterminant();
+
+    //compute cofactor
+    FloatMatrix cofactor;
+    compute_2order_tensor_cross_product(cofactor, F, F);
+    cofactor.times(0.5);
+
+    //put them together and convert to vector form
+    cofactor.times(2. * det);
+    answer.beVectorForm(cofactor);
+}
 
 
 void
@@ -2660,8 +2680,42 @@ StructuralMaterial :: compute_d2I1_C_dF2_and_d2I2_C_dF2(FloatMatrix &d2I1dF2, Fl
 
   
 void
-StructuralMaterial :: compute_d2I3_C_dF2(FloatMatrix &answer, const FloatMatrix &F)
-{}
+StructuralMaterial::compute_d2I3_C_dF2(FloatMatrix &answer, const FloatMatrix &F)
+{
+#ifdef DEBUG
+    if ( F.giveNumberOfRows() != 3 || F.giveNumberOfColumns() != 3 ) {
+        OOFEM_ERROR("Inconsistent size of deformation gradient");
+    }
+#endif
+    // d2I3/dFdF = 2det F (F X) + 2cof F x cof F
+    //where x is the dyadic product and X is the tensor cross product
+
+    //compute determinant
+    double det = F.giveDeterminant();
+
+    //compute cofactor
+    FloatMatrix cofactor;
+    FloatArray vCofactor;
+    compute_2order_tensor_cross_product(cofactor, F, F);
+    cofactor.times(0.5);
+    vCofactor.beVectorForm(cofactor);
+
+    //assemble together according to the formula above
+    FloatMatrix secondPart;
+    secondPart.beDyadicProductOf(vCofactor, vCofactor);
+    secondPart.times(2.);
+
+    FloatMatrix firstPart;
+    compute_tensor_cross_product_tensor(firstPart, F); //??
+    firstPart.times(2.*det);
+
+    answer = firstPart;
+    answer.add(secondPart);
+
+    // possible size/notation mismatch??
+    // First part is fourth order tensor represented as a (9,9) matrix
+    // second part is a fourth order tensor represented as a dyadic product of vector form of 2nd order tensors (6,6) ??
+}
 
 
 void
