@@ -2628,7 +2628,8 @@ StructuralMaterial :: compute_d2I2_C_dF2(FloatMatrix &answer, const FloatMatrix 
     FloatMatrix C, B, I(3, 3);
     I.beUnitMatrix();
     C.beTProductOf(F,F);
-    C.beProductTOf(F,F);
+    //C.beProductTOf(F,F);
+    B.beProductTOf(F,F); // OF edit
     I1 = C.at(1,1) + C.at(2,2) + C.at(3,3); 
     
     for ( int i = 1; i <= 3; i++ ) {
