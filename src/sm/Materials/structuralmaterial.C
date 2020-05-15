@@ -2424,10 +2424,13 @@ StructuralMaterial :: compute_dI2_C_dF(FloatArray &answer, const FloatMatrix &F)
   C.beTProductOf(F,F);
   I1 = C.at(1,1) + C.at(2,2) + C.at(3,3); 
   FC.beProductOf(F,C);
-  FC.times(2);
+  //FC.times(2);
   mAnswer = F;
   mAnswer.times(I1);
   mAnswer.subtract(FC);
+
+  mAnswer.times(2);
+
   answer.beVectorForm(mAnswer);
 }
 

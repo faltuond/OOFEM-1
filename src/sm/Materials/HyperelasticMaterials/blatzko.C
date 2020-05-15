@@ -64,6 +64,32 @@ namespace oofem {
         d2i3dF2.times(coeff4);
         answer.add(d2i3dF2);
 
+        //perturbation of stress
+        //for testing purposes
+
+        FloatMatrix perturbedStiffness(9, 9);
+        FloatMatrix stressDiffM, stressDiffMInverse, fDiffM, fDiffMInverse, stiffnessRowM, stiffnessRowMInverse;
+        FloatArray perturbedF, stress, perturbedStress, stressDiff, fDiff, stiffnessRow;
+        double perturbation = 1.e-8;
+        for ( int i = 1; i <= 9; i++ ) {
+            perturbedF = vF;
+            perturbedF.at(i) += perturbation;
+
+            giveFirstPKStressVector_3d(perturbedStress, gp, perturbedF, tStep);
+            giveFirstPKStressVector_3d(stress, gp, vF, tStep);
+
+            stressDiff.beDifferenceOf(perturbedStress, stress);
+
+            for ( int j = 1; j <= 9; j++ ) {
+                perturbedStiffness.at(j, i) = stressDiff.at(j);
+            }
+        }
+        perturbedStiffness.times(1. / perturbation);
+
+        //answer.printYourself();
+        //perturbedStiffness.printYourself();
+
+        answer = perturbedStiffness;
     }
 
     void BlatzKoMaterial::giveFirstPKStressVector_3d(FloatArray &answer, GaussPoint *gp, const FloatArray &vF, TimeStep *tStep) {
@@ -89,7 +115,7 @@ namespace oofem {
 
         answer = di3dF;
 
-        double dI3coeff = -sqrt(i3) + (i2 / i3);
+        double dI3coeff = sqrt(i3) - (i2 / i3);
         answer.times(dI3coeff);
 
         answer.add(di2dF);
